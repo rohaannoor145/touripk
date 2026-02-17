@@ -7,7 +7,14 @@
             "description": "Hunza Valley is a mountainous valley in the Gilgit-Baltistan region of Pakistan. The valley is situated at an elevation of 2,438 meters, surrounded by snow-capped peaks including Rakaposhi, Ultar Sar, and Ladyfinger Peak.",
             "image": "destinations/hunza-valley.jpg",
             "city": "Karimabad",
-            "created_at": "2025-06-29T10:00:00Z"
+            "country": "Pakistan",
+            "difficulty_level": "moderate",
+            "is_featured": true,
+            "is_active": true,
+            "min_days": 3,
+            "max_capacity": 50,
+            "created_at": "2025-06-29T10:00:00Z",
+            "updated_at": "2025-06-29T10:00:00Z"
         }
     },
     {
@@ -18,7 +25,14 @@
             "description": "Fairy Meadows, named by German climbers and locally known as Joot, is a grassland near Nanga Parbat base camp. Its spectacular beauty and accessibility make it one of the most popular tourist destinations in Pakistan.",
             "image": "destinations/fairy-meadows.jpg",
             "city": "Chilas",
-            "created_at": "2025-06-29T10:00:00Z"
+            "country": "Pakistan",
+            "difficulty_level": "hard",
+            "is_featured": true,
+            "is_active": true,
+            "min_days": 4,
+            "max_capacity": 30,
+            "created_at": "2025-06-29T10:00:00Z",
+            "updated_at": "2025-06-29T10:00:00Z"
         }
     },
     {
@@ -29,7 +43,14 @@
             "description": "The Faisal Mosque is the national mosque of Pakistan, located in the capital city Islamabad. It is one of the largest mosques in the world and an iconic symbol of Pakistani architecture.",
             "image": "destinations/faisal-mosque.jpg",
             "city": "Islamabad",
-            "created_at": "2025-06-29T10:00:00Z"
+            "country": "Pakistan",
+            "difficulty_level": "easy",
+            "is_featured": true,
+            "is_active": true,
+            "min_days": 1,
+            "max_capacity": 100,
+            "created_at": "2025-06-29T10:00:00Z",
+            "updated_at": "2025-06-29T10:00:00Z"
         }
     },
     {
@@ -40,7 +61,14 @@
             "description": "The Badshahi Mosque in Lahore is one of the most iconic landmarks of Pakistan, built in 1673 during the Mughal era. It is the second largest mosque in Pakistan and a masterpiece of Mughal architecture.",
             "image": "destinations/badshahi-mosque.jpg",
             "city": "Lahore",
-            "created_at": "2025-06-29T10:00:00Z"
+            "country": "Pakistan",
+            "difficulty_level": "easy",
+            "is_featured": true,
+            "is_active": true,
+            "min_days": 1,
+            "max_capacity": 100,
+            "created_at": "2025-06-29T10:00:00Z",
+            "updated_at": "2025-06-29T10:00:00Z"
         }
     },
     {
@@ -48,10 +76,17 @@
         "pk": 5,
         "fields": {
             "name": "Baltit Fort",
-            "description": "The Baltit Fort in Hunza is an ancient fort dating back 700 years. Restored by the Aga Khan Trust for Culture, it's a remarkable example of local architecture and offers stunning views of the Hunza Valley.",
+            "description": "The Baltit Fort in Hunza is an ancient fort dating back 700 years. Restored by the Aga Khan Trust for Culture, it is a remarkable example of local architecture and offers stunning views of the Hunza Valley.",
             "image": "destinations/baltit-fort.jpg",
             "city": "Karimabad",
-            "created_at": "2025-06-29T10:00:00Z"
+            "country": "Pakistan",
+            "difficulty_level": "easy",
+            "is_featured": true,
+            "is_active": true,
+            "min_days": 1,
+            "max_capacity": 50,
+            "created_at": "2025-06-29T10:00:00Z",
+            "updated_at": "2025-06-29T10:00:00Z"
         }
     },
     {
@@ -59,10 +94,17 @@
         "pk": 6,
         "fields": {
             "name": "Deosai Plains",
-            "description": "Known as the Land of Giants, Deosai Plains is the second highest plateau in the world. Located in Gilgit-Baltistan, it's a biodiversity hotspot and home to unique wildlife including the Himalayan brown bear.",
+            "description": "Known as the Land of Giants, Deosai Plains is the second highest plateau in the world. Located in Gilgit-Baltistan, it is a biodiversity hotspot and home to unique wildlife including the Himalayan brown bear.",
             "image": "destinations/deosai-plains.jpg",
             "city": "Skardu",
-            "created_at": "2025-06-29T10:00:00Z"
+            "country": "Pakistan",
+            "difficulty_level": "moderate",
+            "is_featured": true,
+            "is_active": true,
+            "min_days": 2,
+            "max_capacity": 40,
+            "created_at": "2025-06-29T10:00:00Z",
+            "updated_at": "2025-06-29T10:00:00Z"
         }
     },
     {
@@ -73,29 +115,44 @@
             "description": "Organic dried apricots from the Hunza Valley, known for their exceptional taste and nutritional value.",
             "price": "599.99",
             "image": "products/dried-apricots.jpg",
-            "created_at": "2025-06-29T10:00:00Z"
+            "is_featured": true,
+            "is_active": true,
+            "is_approved": true,
+            "stock": 100,
+            "created_at": "2025-06-29T10:00:00Z",
+            "updated_at": "2025-06-29T10:00:00Z"
         }
     },
     {
         "model": "content.product",
         "pk": 2,
         "fields": {
-            "name": "Swat Valley Shawl",
-            "description": "Handcrafted wool shawl made by local artisans in Swat Valley, featuring traditional patterns and designs.",
-            "price": "2499.99",
-            "image": "products/traditional-shawl.jpg",
-            "created_at": "2025-06-29T10:00:00Z"
+            "name": "Gilgit Walnuts",
+            "description": "Premium quality walnuts from the valleys of Gilgit-Baltistan, hand-picked and naturally dried.",
+            "price": "899.99",
+            "image": "products/Walnuts.jpg",
+            "is_featured": true,
+            "is_active": true,
+            "is_approved": true,
+            "stock": 100,
+            "created_at": "2025-06-29T10:00:00Z",
+            "updated_at": "2025-06-29T10:00:00Z"
         }
     },
     {
         "model": "content.product",
         "pk": 3,
         "fields": {
-            "name": "Gilgit Handicraft Box",
-            "description": "Decorative wooden box with intricate hand-carved designs, made by skilled craftsmen in Gilgit.",
-            "price": "1299.99",
-            "image": "products/handicraft-box.jpg",
-            "created_at": "2025-06-29T10:00:00Z"
+            "name": "Mountain Shilajit",
+            "description": "Pure Himalayan Shilajit from the mountains of Northern Pakistan, a natural health supplement.",
+            "price": "2499.99",
+            "image": "products/Shilajit.jpg",
+            "is_featured": true,
+            "is_active": true,
+            "is_approved": true,
+            "stock": 50,
+            "created_at": "2025-06-29T10:00:00Z",
+            "updated_at": "2025-06-29T10:00:00Z"
         }
     },
     {
