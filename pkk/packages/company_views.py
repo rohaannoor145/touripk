@@ -6,7 +6,7 @@ from django.db.models import Q
 from django.core.exceptions import ValidationError
 from functools import wraps
 from .models import Company, Package, Booking, PackageReview
-from content.models import Product, AdminNotification
+from content.models import Product, AdminNotification, Order, OrderItem
 from users.security_utils import validate_file_upload, log_security_event
 import logging
 import re
@@ -35,12 +35,18 @@ def company_portal(request):
         messages.warning(request, 'No company found for your account. Please contact admin.')
         return render(request, 'packages/company_no_company.html')
 
-    packages = Package.objects.filter(company=company)
-    products = Product.objects.filter(company=company)
+    packages = Package.objects.filter(company=company).order_by('-created_at')
+    products = Product.objects.filter(company=company).order_by('-created_at')
 
     company_bookings = Booking.objects.filter(
         package__company=company
     ).select_related('user', 'package').order_by('-created_at')[:10]
+
+    # Recent product orders for this company's products
+    company_product_ids = products.values_list('id', flat=True)
+    recent_product_orders = Order.objects.filter(
+        items__product__id__in=company_product_ids
+    ).prefetch_related('items__product').select_related('user').order_by('-created_at').distinct()[:10]
 
     total_bookings = Booking.objects.filter(package__company=company).count()
     confirmed_bookings = Booking.objects.filter(
@@ -59,6 +65,7 @@ def company_portal(request):
         'total_products': products.count(),
         'approved_products': products.filter(is_approved=True).count(),
         'company_bookings': company_bookings,
+        'recent_product_orders': recent_product_orders,
         'total_bookings': total_bookings,
         'confirmed_bookings': confirmed_bookings,
         'pending_bookings': pending_bookings,
@@ -205,6 +212,7 @@ def add_package(request):
             min_people=min_p,
             max_people=max_p,
             image=image,
+            is_active=True,
             is_approved=auto_approve
         )
         if auto_approve:

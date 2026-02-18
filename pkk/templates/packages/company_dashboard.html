@@ -53,6 +53,7 @@
                 <div class="card-body">
                     <h3 class="text-warning">{{ pending_bookings }}</h3>
                     <p class="mb-0">Pending Bookings</p>
+                    <small class="text-muted">awaiting confirmation</small>
                 </div>
             </div>
         </div>
@@ -73,6 +74,11 @@
         <div class="col-md-3">
             <a href="{% url 'packages:company_bookings' %}" class="btn btn-info btn-lg w-100 text-white">
                 <i class="fas fa-calendar-check"></i> All Bookings
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="#recent-bookings" class="btn btn-warning btn-lg w-100">
+                <i class="fas fa-calendar-alt"></i> Recent Bookings
             </a>
         </div>
     </div>
@@ -195,14 +201,15 @@
     </div>
 
     <!-- Recent Bookings -->
-    <div class="card">
+    <div class="card" id="recent-bookings">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h4 class="mb-0"><i class="fas fa-calendar me-2"></i>Recent Bookings</h4>
             <a href="{% url 'packages:company_bookings' %}" class="btn btn-sm btn-outline-primary">View All</a>
         </div>
         <div class="card-body">
             {% if company_bookings %}
-            <div class="table-responsive">
+            <h6 class="text-muted mb-2"><i class="fas fa-suitcase me-1"></i>Package Bookings</h6>
+            <div class="table-responsive mb-4">
             <table class="table table-hover">
                 <thead>
                     <tr>
@@ -239,7 +246,62 @@
             </table>
             </div>
             {% else %}
-            <p class="text-muted">No bookings yet.</p>
+            <p class="text-muted">No package bookings yet.</p>
+            {% endif %}
+
+            <!-- Product Orders -->
+            {% if recent_product_orders %}
+            <h6 class="text-muted mb-2"><i class="fas fa-box me-1"></i>Product Orders</h6>
+            <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Order #</th>
+                        <th>Customer</th>
+                        <th>Products</th>
+                        <th>Date</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in recent_product_orders %}
+                    <tr>
+                        <td><strong>#{{ order.order_number }}</strong></td>
+                        <td>{{ order.user.username }}<br><small class="text-muted">{{ order.full_name }}</small></td>
+                        <td>
+                            {% for item in order.items.all %}
+                            {% if item.product.company == company %}
+                            <span class="badge bg-secondary me-1">{{ item.product.name }} x{{ item.quantity }}</span>
+                            {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>{{ order.created_at|date:"M d, Y" }}</td>
+                        <td>PKR {{ order.total|floatformat:0 }}</td>
+                        <td>
+                            {% if order.status == 'confirmed' %}
+                            <span class="badge bg-success">Confirmed</span>
+                            {% elif order.status == 'pending' %}
+                            <span class="badge bg-warning">Pending</span>
+                            {% elif order.status == 'delivered' %}
+                            <span class="badge bg-info">Delivered</span>
+                            {% elif order.status == 'cancelled' %}
+                            <span class="badge bg-danger">Cancelled</span>
+                            {% elif order.status == 'processing' %}
+                            <span class="badge bg-primary">Processing</span>
+                            {% elif order.status == 'shipped' %}
+                            <span class="badge bg-secondary">Shipped</span>
+                            {% else %}
+                            <span class="badge bg-secondary">{{ order.get_status_display }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+            {% else %}
+            <p class="text-muted">No product orders yet.</p>
             {% endif %}
         </div>
     </div>

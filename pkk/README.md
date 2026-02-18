@@ -439,6 +439,14 @@ Key deployment settings:
 - [ ] Run `python manage.py collectstatic`
 - [ ] Configure HTTPS
 
+### Recent Updates (v3.0 — Feb 2026)
+
+#### Company Dashboard Improvements
+- **Pending Bookings stat card** now has equal height/layout as other stat cards (Total Packages, Total Products, Total Bookings) via an `awaiting confirmation` subtitle.
+- **4th Quick-Action button** ("Recent Bookings") added to the dashboard action row, scrolling directly to the Recent Bookings section.
+- **Product Orders in Recent Bookings**: The Recent Bookings section now shows two sub-tables — _Package Bookings_ and _Product Orders_ — so company owners can see both tour bookings and product orders in one place.
+- **Backend** (`packages/company_views.py`): `company_portal` view now fetches recent product orders (`content.Order`) filtered by the company's products and passes them as `recent_product_orders` to the template.
+
 ---
 
 ## 👥 Contributing
