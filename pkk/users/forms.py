@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.core.exceptions import ValidationError
-from .models import CustomUser
+from .models import CustomUser, SecurityAnswer
 from .security_utils import validate_file_upload
 import re
 
@@ -351,3 +351,80 @@ class CompanyUserRegistrationForm(UserRegistrationForm):
         if commit:
             user.save()
         return user
+
+
+class SecuritySetupForm(forms.Form):
+    """Form for setting up the 3 security questions."""
+    answer_1 = forms.CharField(
+        label=SecurityAnswer.QUESTION_1,
+        max_length=200,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Your nickname'}),
+    )
+    answer_2 = forms.CharField(
+        label=SecurityAnswer.QUESTION_2,
+        max_length=200,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'School name'}),
+    )
+    answer_3 = forms.CharField(
+        label=SecurityAnswer.QUESTION_3,
+        max_length=200,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'City / place'}),
+    )
+
+
+class ForgotPasswordStep1Form(forms.Form):
+    """Step 1: enter email to look up account."""
+    email = forms.EmailField(
+        label='Email Address',
+        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Enter your registered email'}),
+    )
+
+
+class ForgotPasswordStep2Form(forms.Form):
+    """Step 2: answer the 3 security questions."""
+    answer_1 = forms.CharField(
+        label=SecurityAnswer.QUESTION_1,
+        max_length=200,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Your answer'}),
+    )
+    answer_2 = forms.CharField(
+        label=SecurityAnswer.QUESTION_2,
+        max_length=200,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Your answer'}),
+    )
+    answer_3 = forms.CharField(
+        label=SecurityAnswer.QUESTION_3,
+        max_length=200,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Your answer'}),
+    )
+
+
+class ForgotPasswordResetForm(forms.Form):
+    """Step 3: set a new password."""
+    new_password = forms.CharField(
+        label='New Password',
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Enter new password'}),
+        min_length=8,
+    )
+    confirm_password = forms.CharField(
+        label='Confirm Password',
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Confirm new password'}),
+    )
+
+    def clean(self):
+        cleaned = super().clean()
+        p1 = cleaned.get('new_password', '')
+        p2 = cleaned.get('confirm_password', '')
+        if p1 and p2 and p1 != p2:
+            raise ValidationError('Passwords do not match.')
+        import re as _re
+        if p1:
+            if len(p1) < 8:
+                raise ValidationError('Password must be at least 8 characters.')
+            if not _re.search(r'[A-Z]', p1):
+                raise ValidationError('Password must contain at least one uppercase letter.')
+            if not _re.search(r'[a-z]', p1):
+                raise ValidationError('Password must contain at least one lowercase letter.')
+            if not _re.search(r'\d', p1):
+                raise ValidationError('Password must contain at least one number.')
+        return cleaned

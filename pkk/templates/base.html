@@ -1054,6 +1054,12 @@
                                 </a>
                                 {% endcomment %}
                                 <div class="menu-divider"></div>
+                                {% if user.user_type != 'company' %}
+                                <a class="menu-item" href="{% url 'setup_security_questions' %}">
+                                    <i class="fas fa-shield-halved"></i>
+                                    <span>Security Questions</span>
+                                </a>
+                                {% endif %}
                                 <form method="post" action="{% url 'logout' %}" class="logout-form">
                                     {% csrf_token %}
                                     <button type="submit" class="menu-item logout-btn">

@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Security Questions – TouriPK{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header rounded-top-4 text-white py-4 text-center"
+                     style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);">
+                    <i class="fas fa-shield-halved fa-2x mb-2"></i>
+                    <h4 class="mb-0 fw-bold">Security Questions</h4>
+                    <p class="mb-0 small opacity-75">Used to verify your identity if you forget your password</p>
+                </div>
+                <div class="card-body p-4">
+                    {% if already_set %}
+                    <div class="alert alert-info d-flex align-items-center gap-2 rounded-3">
+                        <i class="fas fa-info-circle"></i>
+                        <span>You already have security questions set. Submitting this form will update them.</span>
+                    </div>
+                    {% endif %}
+
+                    {% if messages %}
+                    {% for msg in messages %}
+                    <div class="alert alert-{{ msg.tags }} alert-dismissible fade show rounded-3">
+                        {{ msg }} <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+
+                    <form method="post">
+                        {% csrf_token %}
+                        {% for field in form %}
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold text-dark">
+                                <i class="fas fa-question-circle text-purple me-1" style="color:#8b5cf6;"></i>
+                                {{ field.label }}
+                            </label>
+                            {{ field }}
+                            {% if field.errors %}
+                            <div class="text-danger small mt-1">{{ field.errors.as_text }}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+
+                        <div class="alert alert-warning rounded-3 small">
+                            <i class="fas fa-exclamation-triangle me-1"></i>
+                            Answers are <strong>case-insensitive</strong>. Remember these answers — they will be needed to recover your account.
+                        </div>
+
+                        <div class="d-grid mt-3">
+                            <button type="submit" class="btn btn-lg fw-bold text-white"
+                                    style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border: none; border-radius: 12px;">
+                                <i class="fas fa-save me-2"></i>Save Security Questions
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="text-center mt-4">
+                        <a href="{% url 'dashboard' %}" class="text-muted small">
+                            <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

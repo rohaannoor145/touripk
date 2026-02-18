@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.validators import RegexValidator
+from django.contrib.auth.hashers import make_password, check_password
 
 # Create your models here.
 
@@ -72,3 +73,32 @@ class Notification(models.Model):
     
     def __str__(self):
         return f"{self.title} - {self.user.username}"
+
+
+class SecurityAnswer(models.Model):
+    """Stores hashed answers to 3 security questions for password recovery."""
+    QUESTION_1 = "What is your nickname?"
+    QUESTION_2 = "What school did you attend?"
+    QUESTION_3 = "What city or place are you from?"
+
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='security_answers')
+    answer_1 = models.CharField(max_length=255)  # stored as hash
+    answer_2 = models.CharField(max_length=255)
+    answer_3 = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def set_answers(self, a1, a2, a3):
+        self.answer_1 = make_password(a1.strip().lower())
+        self.answer_2 = make_password(a2.strip().lower())
+        self.answer_3 = make_password(a3.strip().lower())
+
+    def check_answers(self, a1, a2, a3):
+        return (
+            check_password(a1.strip().lower(), self.answer_1) and
+            check_password(a2.strip().lower(), self.answer_2) and
+            check_password(a3.strip().lower(), self.answer_3)
+        )
+
+    def __str__(self):
+        return f"SecurityAnswers for {self.user.username}"

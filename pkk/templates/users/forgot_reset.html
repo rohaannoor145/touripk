@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Set New Password – TouriPK{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header rounded-top-4 text-white py-4 text-center"
+                     style="background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);">
+                    <i class="fas fa-lock fa-2x mb-2"></i>
+                    <h4 class="mb-0 fw-bold">Set New Password</h4>
+                    <p class="mb-0 small opacity-75">Step 3 of 3 — Create a new password</p>
+                </div>
+                <div class="card-body p-4">
+                    {% if messages %}
+                    {% for msg in messages %}
+                    <div class="alert alert-{{ msg.tags }} alert-dismissible fade show rounded-3">
+                        {{ msg }} <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">{{ form.new_password.label }}</label>
+                            {{ form.new_password }}
+                            {% if form.new_password.errors %}
+                            <div class="text-danger small mt-1">{{ form.new_password.errors.as_text }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">{{ form.confirm_password.label }}</label>
+                            {{ form.confirm_password }}
+                            {% if form.confirm_password.errors %}
+                            <div class="text-danger small mt-1">{{ form.confirm_password.errors.as_text }}</div>
+                            {% endif %}
+                        </div>
+
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger rounded-3 small">{{ form.non_field_errors }}</div>
+                        {% endif %}
+
+                        <div class="alert alert-light border small rounded-3">
+                            <strong>Password requirements:</strong>
+                            <ul class="mb-0 mt-1 ps-3">
+                                <li>At least 8 characters</li>
+                                <li>At least one uppercase letter</li>
+                                <li>At least one lowercase letter</li>
+                                <li>At least one number</li>
+                            </ul>
+                        </div>
+
+                        <div class="d-grid mt-3">
+                            <button type="submit" class="btn btn-lg fw-bold text-white"
+                                    style="background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%); border: none; border-radius: 12px;">
+                                <i class="fas fa-save me-2"></i>Reset Password
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Step indicator -->
+            <div class="d-flex justify-content-center gap-2 mt-3">
+                <span class="badge rounded-pill px-3 py-2 bg-success text-white">✓ Email</span>
+                <span class="badge rounded-pill px-3 py-2 bg-success text-white">✓ Questions</span>
+                <span class="badge rounded-pill px-3 py-2 text-white" style="background:#10b981;">3 New Password</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Forgot Password – TouriPK{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header rounded-top-4 text-white py-4 text-center"
+                     style="background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);">
+                    <i class="fas fa-key fa-2x mb-2"></i>
+                    <h4 class="mb-0 fw-bold">Forgot Password</h4>
+                    <p class="mb-0 small opacity-75">Step 1 of 3 — Enter your email</p>
+                </div>
+                <div class="card-body p-4">
+                    {% if messages %}
+                    {% for msg in messages %}
+                    <div class="alert alert-{{ msg.tags }} alert-dismissible fade show rounded-3">
+                        {{ msg }} <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+
+                    <p class="text-muted small mb-4">
+                        Enter the email address linked to your account. You will then be asked to answer your security questions.
+                    </p>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">{{ form.email.label }}</label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                            <div class="text-danger small mt-1">{{ form.email.errors.as_text }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-lg fw-bold text-white"
+                                    style="background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%); border: none; border-radius: 12px;">
+                                <i class="fas fa-arrow-right me-2"></i>Continue
+                            </button>
+                        </div>
+                    </form>
+
+                    <hr class="my-4">
+                    <div class="text-center">
+                        <a href="{% url 'login' %}" class="text-muted small">
+                            <i class="fas fa-arrow-left me-1"></i>Back to Login
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step indicator -->
+            <div class="d-flex justify-content-center gap-2 mt-3">
+                <span class="badge rounded-pill px-3 py-2 text-white" style="background:#3b82f6;">1 Email</span>
+                <span class="badge rounded-pill px-3 py-2 bg-light text-muted">2 Questions</span>
+                <span class="badge rounded-pill px-3 py-2 bg-light text-muted">3 New Password</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

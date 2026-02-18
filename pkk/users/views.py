@@ -10,8 +10,10 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.debug import sensitive_post_parameters
 from django_ratelimit.decorators import ratelimit
-from .models import CustomUser
-from .forms import UserRegistrationForm, UserLoginForm, CompanyUserRegistrationForm
+from .models import CustomUser, SecurityAnswer
+from .forms import (UserRegistrationForm, UserLoginForm, CompanyUserRegistrationForm,
+                    SecuritySetupForm, ForgotPasswordStep1Form,
+                    ForgotPasswordStep2Form, ForgotPasswordResetForm)
 from content.models import Destination, Product
 from packages.models import Company, Booking
 from .security_utils import log_security_event, validate_file_upload
@@ -343,3 +345,122 @@ def logout_view(request):
         # If GET request, show message and redirect
         messages.info(request, 'Please use the logout button to sign out.')
         return redirect('home')
+
+
+# ─── Security Questions ──────────────────────────────────────────────────────
+
+@login_required
+def setup_security_questions(request):
+    """Allow a logged-in user to set / update their 3 security answers."""
+    try:
+        obj = request.user.security_answers
+    except SecurityAnswer.DoesNotExist:
+        obj = None
+
+    if request.method == 'POST':
+        form = SecuritySetupForm(request.POST)
+        if form.is_valid():
+            if obj is None:
+                obj = SecurityAnswer(user=request.user)
+            obj.set_answers(
+                form.cleaned_data['answer_1'],
+                form.cleaned_data['answer_2'],
+                form.cleaned_data['answer_3'],
+            )
+            obj.save()
+            messages.success(request, 'Security questions saved successfully!')
+            return redirect('dashboard')
+    else:
+        form = SecuritySetupForm()
+
+    return render(request, 'users/security_setup.html', {
+        'form': form,
+        'already_set': obj is not None,
+    })
+
+
+def forgot_password_step1(request):
+    """Step 1 – enter email address."""
+    if request.method == 'POST':
+        form = ForgotPasswordStep1Form(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email'].lower()
+            try:
+                user = CustomUser.objects.get(email=email)
+                # Check if security questions are set up
+                if not hasattr(user, 'security_answers'):
+                    messages.error(request, 'No security questions found for this account. Please contact support.')
+                    return render(request, 'users/forgot_step1.html', {'form': form})
+                # Store user id in session for next step (not token-based, just session)
+                request.session['pwd_reset_uid'] = user.pk
+                return redirect('forgot_password_step2')
+            except CustomUser.DoesNotExist:
+                # Don't reveal whether email exists
+                messages.error(request, 'No account found with that email address.')
+    else:
+        form = ForgotPasswordStep1Form()
+
+    return render(request, 'users/forgot_step1.html', {'form': form})
+
+
+def forgot_password_step2(request):
+    """Step 2 – answer the 3 security questions."""
+    uid = request.session.get('pwd_reset_uid')
+    if not uid:
+        messages.error(request, 'Session expired. Please start again.')
+        return redirect('forgot_password_step1')
+
+    try:
+        user = CustomUser.objects.get(pk=uid)
+        sec = user.security_answers
+    except (CustomUser.DoesNotExist, SecurityAnswer.DoesNotExist):
+        messages.error(request, 'Invalid session. Please start again.')
+        return redirect('forgot_password_step1')
+
+    if request.method == 'POST':
+        form = ForgotPasswordStep2Form(request.POST)
+        if form.is_valid():
+            if sec.check_answers(
+                form.cleaned_data['answer_1'],
+                form.cleaned_data['answer_2'],
+                form.cleaned_data['answer_3'],
+            ):
+                request.session['pwd_reset_verified'] = True
+                return redirect('forgot_password_reset')
+            else:
+                messages.error(request, 'One or more answers are incorrect. Please try again.')
+    else:
+        form = ForgotPasswordStep2Form()
+
+    return render(request, 'users/forgot_step2.html', {'form': form})
+
+
+def forgot_password_reset(request):
+    """Step 3 – set a new password after verification."""
+    uid = request.session.get('pwd_reset_uid')
+    verified = request.session.get('pwd_reset_verified')
+
+    if not uid or not verified:
+        messages.error(request, 'Session expired. Please start again.')
+        return redirect('forgot_password_step1')
+
+    try:
+        user = CustomUser.objects.get(pk=uid)
+    except CustomUser.DoesNotExist:
+        messages.error(request, 'Invalid session.')
+        return redirect('forgot_password_step1')
+
+    if request.method == 'POST':
+        form = ForgotPasswordResetForm(request.POST)
+        if form.is_valid():
+            user.set_password(form.cleaned_data['new_password'])
+            user.save()
+            # Clear session keys
+            request.session.pop('pwd_reset_uid', None)
+            request.session.pop('pwd_reset_verified', None)
+            messages.success(request, 'Password reset successful! You can now log in with your new password.')
+            return redirect('login')
+    else:
+        form = ForgotPasswordResetForm()
+
+    return render(request, 'users/forgot_reset.html', {'form': form})

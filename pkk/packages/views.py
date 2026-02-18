@@ -23,8 +23,8 @@ def package_list(request):
         package_type = request.GET.get('type')
         search_query = request.GET.get('search', '').strip()
         
-        # Start with active packages
-        packages = Package.objects.filter(is_active=True).select_related('company')
+        # Start with active AND approved packages only
+        packages = Package.objects.filter(is_active=True, is_approved=True).select_related('company')
         
         # Apply search filter
         if search_query:

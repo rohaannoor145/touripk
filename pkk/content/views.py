@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.db.models import F
 from decimal import Decimal
 from .models import Destination, Product, CostComponent, Cart, CartItem, Order, OrderItem, CustomPackageOrder, AdminNotification, ProductReview
-from packages.models import Company
+from packages.models import Company, Package
 from .utils.weather import get_weather_data
 from django.conf import settings
 from django.utils import timezone
@@ -22,10 +22,18 @@ def home(request):
     featured_destinations = Destination.objects.filter(is_featured=True, is_active=True)[:6]
     companies = Company.objects.filter(is_active=True, approval_status='approved').order_by('name')
     products = Product.objects.filter(is_active=True).order_by('-is_featured', 'name')
+    featured_packages = Package.objects.filter(
+        is_active=True, is_approved=True, is_featured=True
+    ).select_related('company').order_by('-created_at')[:6]
+    all_packages = Package.objects.filter(
+        is_active=True, is_approved=True
+    ).select_related('company').order_by('-created_at')[:8]
     return render(request, 'content/home.html', {
         'featured_destinations': featured_destinations,
         'companies': companies,
-        'products': products
+        'products': products,
+        'featured_packages': featured_packages,
+        'all_packages': all_packages,
     })
 
 def destination_list(request):

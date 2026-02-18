@@ -8,8 +8,14 @@ urlpatterns = [
     path('login/', views.UserLoginView.as_view(), name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('dashboard/', views.dashboard, name='dashboard'),
-    
-    # Password reset URLs (important for security)
+
+    # Security questions setup
+    path('security-questions/', views.setup_security_questions, name='setup_security_questions'),
+
+    # Forgot password via security questions
+    path('forgot-password/', views.forgot_password_step1, name='forgot_password_step1'),
+    path('forgot-password/verify/', views.forgot_password_step2, name='forgot_password_step2'),
+    path('forgot-password/reset/', views.forgot_password_reset, name='forgot_password_reset'),
     path('password-reset/', 
          auth_views.PasswordResetView.as_view(
              template_name='users/password_reset.html',
