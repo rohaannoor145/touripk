@@ -58,9 +58,15 @@
                     </form>
 
                     <div class="text-center mt-4">
+                        {% if from_register %}
+                        <a href="{% url 'login' %}" class="text-muted small">
+                            <i class="fas fa-arrow-right me-1"></i>Skip for now &amp; Sign In
+                        </a>
+                        {% else %}
                         <a href="{% url 'dashboard' %}" class="text-muted small">
                             <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
                         </a>
+                        {% endif %}
                     </div>
                 </div>
             </div>

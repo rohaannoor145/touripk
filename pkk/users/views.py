@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate, logout as auth_logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.generic.edit import CreateView, FormView
@@ -49,12 +49,16 @@ class UserRegisterView(CreateView):
             user.save()
             
             logger.info(f"New user registered: {user.username} ({user.email})")
-            
+
+            # Auto-login so the user can set security questions immediately
+            login(self.request, user,
+                  backend='django.contrib.auth.backends.ModelBackend')
+            self.request.session['from_register'] = True
             messages.success(
                 self.request,
-                'Registration successful! Your account has been created. Please login to continue.'
+                'Account created! Please set up your security questions below.'
             )
-            return super().form_valid(form)
+            return redirect('setup_security_questions')
         except Exception as e:
             logger.error(f"Registration error: {str(e)}")
             messages.error(self.request, f'Registration failed: {str(e)}. Please contact support if this persists.')
@@ -304,6 +308,12 @@ def dashboard(request):
             user=request.user, status='pending'
         ).count()
         
+        # Safely check security questions without risking OperationalError
+        try:
+            has_security_answers = hasattr(request.user, 'security_answers') and request.user.security_answers is not None
+        except Exception:
+            has_security_answers = False
+
         return render(request, 'users/dashboard.html', {
             'destinations': destinations,
             'products': products,
@@ -311,11 +321,12 @@ def dashboard(request):
             'total_bookings': total_bookings,
             'confirmed_bookings': confirmed_bookings,
             'pending_bookings': pending_bookings,
+            'has_security_answers': has_security_answers,
         })
     except Exception as e:
         logger.error(f"Dashboard error: {str(e)}")
         messages.error(request, 'Error loading dashboard data.')
-        return render(request, 'users/dashboard.html', {})
+        return render(request, 'users/dashboard.html', {'has_security_answers': True})
 
 
 def logout_view(request):
@@ -357,6 +368,8 @@ def setup_security_questions(request):
     except SecurityAnswer.DoesNotExist:
         obj = None
 
+    from_register = request.session.get('from_register', False)
+
     if request.method == 'POST':
         form = SecuritySetupForm(request.POST)
         if form.is_valid():
@@ -368,6 +381,11 @@ def setup_security_questions(request):
                 form.cleaned_data['answer_3'],
             )
             obj.save()
+            if from_register:
+                request.session.pop('from_register', None)
+                auth_logout(request)
+                messages.success(request, 'Security questions saved! You can now sign in.')
+                return redirect('login')
             messages.success(request, 'Security questions saved successfully!')
             return redirect('dashboard')
     else:
@@ -376,6 +394,7 @@ def setup_security_questions(request):
     return render(request, 'users/security_setup.html', {
         'form': form,
         'already_set': obj is not None,
+        'from_register': from_register,
     })
 
 
