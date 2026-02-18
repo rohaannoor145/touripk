@@ -383,12 +383,15 @@ def change_password(request):
 
 # ─── Security Questions ──────────────────────────────────────────────────────
 
+from django.db import OperationalError as DBOperationalError
+
+
 @login_required
 def setup_security_questions(request):
     """Allow a logged-in user to set / update their 3 security answers."""
     try:
         obj = request.user.security_answers
-    except SecurityAnswer.DoesNotExist:
+    except (SecurityAnswer.DoesNotExist, DBOperationalError):
         obj = None
 
     from_register = request.session.get('from_register', False)
@@ -430,10 +433,15 @@ def forgot_password_step1(request):
             try:
                 user = CustomUser.objects.get(email=email)
                 # Check if security questions are set up
-                if not hasattr(user, 'security_answers'):
+                try:
+                    sq = user.security_answers
+                    has_sq = sq is not None
+                except (SecurityAnswer.DoesNotExist, DBOperationalError):
+                    has_sq = False
+                if not has_sq:
                     messages.error(request, 'No security questions found for this account. Please contact support.')
                     return render(request, 'users/forgot_step1.html', {'form': form})
-                # Store user id in session for next step (not token-based, just session)
+                # Store user id in session for next step
                 request.session['pwd_reset_uid'] = user.pk
                 return redirect('forgot_password_step2')
             except CustomUser.DoesNotExist:
@@ -454,8 +462,12 @@ def forgot_password_step2(request):
 
     try:
         user = CustomUser.objects.get(pk=uid)
-        sec = user.security_answers
-    except (CustomUser.DoesNotExist, SecurityAnswer.DoesNotExist):
+        try:
+            sec = user.security_answers
+        except (SecurityAnswer.DoesNotExist, DBOperationalError):
+            messages.error(request, 'Security questions not set up for this account.')
+            return redirect('forgot_password_step1')
+    except CustomUser.DoesNotExist:
         messages.error(request, 'Invalid session. Please start again.')
         return redirect('forgot_password_step1')
 
