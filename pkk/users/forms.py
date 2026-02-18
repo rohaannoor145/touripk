@@ -353,6 +353,44 @@ class CompanyUserRegistrationForm(UserRegistrationForm):
         return user
 
 
+class ChangePasswordForm(forms.Form):
+    """Form for changing password while logged in."""
+    current_password = forms.CharField(
+        label='Current Password',
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Enter your current password'}),
+    )
+    new_password = forms.CharField(
+        label='New Password',
+        min_length=8,
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Enter new password'}),
+    )
+    confirm_password = forms.CharField(
+        label='Confirm New Password',
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Confirm new password'}),
+    )
+
+    def clean_new_password(self):
+        p = self.cleaned_data.get('new_password', '')
+        import re as _re
+        if len(p) < 8:
+            raise ValidationError('Password must be at least 8 characters.')
+        if not _re.search(r'[A-Z]', p):
+            raise ValidationError('Password must contain at least one uppercase letter.')
+        if not _re.search(r'[a-z]', p):
+            raise ValidationError('Password must contain at least one lowercase letter.')
+        if not _re.search(r'\d', p):
+            raise ValidationError('Password must contain at least one number.')
+        return p
+
+    def clean(self):
+        cleaned = super().clean()
+        p1 = cleaned.get('new_password', '')
+        p2 = cleaned.get('confirm_password', '')
+        if p1 and p2 and p1 != p2:
+            raise ValidationError('New passwords do not match.')
+        return cleaned
+
+
 class SecuritySetupForm(forms.Form):
     """Form for setting up the 3 security questions."""
     answer_1 = forms.CharField(

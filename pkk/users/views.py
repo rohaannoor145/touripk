@@ -12,7 +12,7 @@ from django.views.decorators.debug import sensitive_post_parameters
 from django_ratelimit.decorators import ratelimit
 from .models import CustomUser, SecurityAnswer
 from .forms import (UserRegistrationForm, UserLoginForm, CompanyUserRegistrationForm,
-                    SecuritySetupForm, ForgotPasswordStep1Form,
+                    ChangePasswordForm, SecuritySetupForm, ForgotPasswordStep1Form,
                     ForgotPasswordStep2Form, ForgotPasswordResetForm)
 from content.models import Destination, Product
 from packages.models import Company, Booking
@@ -356,6 +356,29 @@ def logout_view(request):
         # If GET request, show message and redirect
         messages.info(request, 'Please use the logout button to sign out.')
         return redirect('home')
+
+
+# ─── Change Password ────────────────────────────────────────────────────────
+
+@login_required
+def change_password(request):
+    """Allow a logged-in user to change their password."""
+    if request.method == 'POST':
+        form = ChangePasswordForm(request.POST)
+        if form.is_valid():
+            if not request.user.check_password(form.cleaned_data['current_password']):
+                form.add_error('current_password', 'Current password is incorrect.')
+            else:
+                request.user.set_password(form.cleaned_data['new_password'])
+                request.user.save()
+                # Keep user logged in after password change
+                from django.contrib.auth import update_session_auth_hash
+                update_session_auth_hash(request, request.user)
+                messages.success(request, 'Password changed successfully!')
+                return redirect('dashboard')
+    else:
+        form = ChangePasswordForm()
+    return render(request, 'users/change_password.html', {'form': form})
 
 
 # ─── Security Questions ──────────────────────────────────────────────────────

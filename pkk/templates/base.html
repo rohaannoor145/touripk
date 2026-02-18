@@ -1060,6 +1060,10 @@
                                     <span>Security Questions</span>
                                 </a>
                                 {% endif %}
+                                <a class="menu-item" href="{% url 'change_password' %}">
+                                    <i class="fas fa-lock"></i>
+                                    <span>Change Password</span>
+                                </a>
                                 <form method="post" action="{% url 'logout' %}" class="logout-form">
                                     {% csrf_token %}
                                     <button type="submit" class="menu-item logout-btn">
