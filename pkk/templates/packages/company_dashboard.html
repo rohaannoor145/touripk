@@ -4,7 +4,28 @@
 {% block content %}
 <div class="container my-5">
     <h2><i class="fas fa-building me-2"></i>Company Dashboard - {{ company.name }}</h2>
-    
+
+    <!-- Security Questions Setup Prompt -->
+    {% if not has_security_answers %}
+    <div class="alert d-flex align-items-center justify-content-between gap-3 rounded-4 shadow-sm mb-3"
+         style="background: linear-gradient(135deg,#fef3c7,#fde68a); border: 1.5px solid #f59e0b;">
+        <div class="d-flex align-items-center gap-3">
+            <i class="fas fa-shield-halved fa-lg" style="color:#d97706;"></i>
+            <div>
+                <strong style="color:#92400e;">Set up Security Questions</strong>
+                <p class="mb-0 small" style="color:#78350f;">
+                    Protect your account — set 3 security questions to recover your password if you forget it.
+                </p>
+            </div>
+        </div>
+        <a href="{% url 'setup_security_questions' %}"
+           class="btn btn-sm fw-bold text-white flex-shrink-0"
+           style="background:#d97706; border:none; border-radius:10px; white-space:nowrap;">
+            <i class="fas fa-plus me-1"></i>Set Up Now
+        </a>
+    </div>
+    {% endif %}
+
     {% if company.approval_status == 'pending' %}
     <div class="alert alert-warning">
         <i class="fas fa-clock"></i> Your company is pending approval.

@@ -56,6 +56,13 @@ def company_portal(request):
         package__company=company, status='pending'
     ).count()
 
+    # Safely check if security questions are set up
+    try:
+        from users.models import SecurityAnswer
+        has_security_answers = SecurityAnswer.objects.filter(user=request.user).exists()
+    except Exception:
+        has_security_answers = False
+
     context = {
         'company': company,
         'packages': packages,
@@ -69,6 +76,7 @@ def company_portal(request):
         'total_bookings': total_bookings,
         'confirmed_bookings': confirmed_bookings,
         'pending_bookings': pending_bookings,
+        'has_security_answers': has_security_answers,
     }
     return render(request, 'packages/company_dashboard.html', context)
 
